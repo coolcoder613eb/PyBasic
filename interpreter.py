@@ -40,18 +40,21 @@ def main():
         P        Y    B   B  A   A      S    I    C
         P        Y    B   B  A   A      S    I    C
         P        Y    BBBB   A   A  SSSS     I     CCC
-        """)
+        
+READY.""")
 
     print(banner)
 
     lexer = Lexer()
     program = Program()
 
+    ten = Token(0,Token.UNSIGNEDINT,'10')
+
     # Continuously accept user input and act on it until
     # the user enters 'EXIT'
     while True:
 
-        stmt = input('> ')
+        stmt = input('')
 
         try:
             tokenlist = lexer.tokenize(stmt)
@@ -70,6 +73,8 @@ def main():
                 # a line number
                 elif tokenlist[0].category == Token.UNSIGNEDINT\
                      and len(tokenlist) > 1:
+                    print(dir(tokenlist[0]))
+                    tokenlist[0].pretty_print()
                     program.add_stmt(tokenlist)
 
                 # Delete a statement from the program
@@ -84,47 +89,71 @@ def main():
 
                     except KeyboardInterrupt:
                         print("Program terminated")
+                    print("\nREADY.")
 
                 # List the program
                 elif tokenlist[0].category == Token.LIST:
-                     if len(tokenlist) == 2:
+                    if len(tokenlist) == 2:
                          program.list(int(tokenlist[1].lexeme),int(tokenlist[1].lexeme))
-                     elif len(tokenlist) == 3:
-                         # if we have 3 tokens, it might be LIST x y for a range
-                         # or LIST -y or list x- for a start to y, or x to end
-                         if tokenlist[1].lexeme == "-":
-                             program.list(None, int(tokenlist[2].lexeme))
-                         elif tokenlist[2].lexeme == "-":
-                             program.list(int(tokenlist[1].lexeme), None)
-                         else:
-                             program.list(int(tokenlist[1].lexeme),int(tokenlist[2].lexeme))
-                     elif len(tokenlist) == 4:
-                         # if we have 4, assume LIST x-y or some other
-                         # delimiter for a range
-                         program.list(int(tokenlist[1].lexeme),int(tokenlist[3].lexeme))
-                     else:
-                         program.list()
+                    elif len(tokenlist) == 3:
+                        # if we have 3 tokens, it might be LIST x y for a range
+                        # or LIST -y or list x- for a start to y, or x to end
+                        if tokenlist[1].lexeme == "-":
+                            program.list(None, int(tokenlist[2].lexeme))
+                        elif tokenlist[2].lexeme == "-":
+                            program.list(int(tokenlist[1].lexeme), None)
+                        else:
+                            program.list(int(tokenlist[1].lexeme),int(tokenlist[2].lexeme))
+                    elif len(tokenlist) == 4:
+                        # if we have 4, assume LIST x-y or some other
+                        # delimiter for a range
+                        program.list(int(tokenlist[1].lexeme),int(tokenlist[3].lexeme))
+                    else:
+                        program.list()
+                    print("\nREADY.")
 
                 # Save the program to disk
                 elif tokenlist[0].category == Token.SAVE:
                     program.save(tokenlist[1].lexeme)
                     print("Program written to file")
+                    print("\nREADY.")
 
                 # Load the program from disk
                 elif tokenlist[0].category == Token.LOAD:
                     program.load(tokenlist[1].lexeme)
                     print("Program read from file")
+                    print("\nREADY.")
 
                 # Delete the program from memory
                 elif tokenlist[0].category == Token.NEW:
                     program.delete()
+                    print("\nREADY.")
+
+                #elif len(tokenlist) > 0:
+                #    
 
                 # Unrecognised input
+                # Execute single statement
                 else:
-                    print("Unrecognised input", file=stderr)
-                    for token in tokenlist:
-                        token.print_lexeme()
-                    print(flush=True)
+                    tokenlist.insert(0,ten)
+                    oneliner = Program()
+                    oneliner.add_stmt(tokenlist)
+                    try:
+                        oneliner.execute()
+
+                    except KeyboardInterrupt:
+                        print("Program terminated")
+                    #print("Unrecognised input", file=stderr)
+                    #for token in tokenlist:
+                    #    token.print_lexeme()
+                    #print(flush=True)
+
+
+                #else:
+                #    print("Unrecognised input", file=stderr)
+                #    for token in tokenlist:
+                #        token.print_lexeme()
+                #    print(flush=True)
 
         # Trap all exceptions so that interpreter
         # keeps running
