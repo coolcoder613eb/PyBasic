@@ -73,8 +73,8 @@ READY.""")
                 # a line number
                 elif tokenlist[0].category == Token.UNSIGNEDINT\
                      and len(tokenlist) > 1:
-                    print(dir(tokenlist[0]))
-                    tokenlist[0].pretty_print()
+                    #print(dir(tokenlist[0]))
+                    #tokenlist[0].pretty_print()
                     program.add_stmt(tokenlist)
 
                 # Delete a statement from the program
